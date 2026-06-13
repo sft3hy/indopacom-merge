@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+import os
+import json
+import base64
+
+def main():
+    bundle_file = 'repo_bundle.txt'
+    if not os.path.exists(bundle_file):
+        print(f"Error: '{bundle_file}' not found in the current directory.")
+        print("Please place 'repo_bundle.txt' in the same directory as this script.")
+        return
+        
+    print(f"Reading bundle: {bundle_file}")
+    try:
+        with open(bundle_file, 'r', encoding='utf-8') as f:
+            bundled_files = json.load(f)
+    except Exception as e:
+        print(f"Error reading or parsing bundle: {e}")
+        return
+        
+    print(f"Unpacking {len(bundled_files)} files...")
+    
+    for file_info in bundled_files:
+        rel_path = file_info['path']
+        # Split by forward slash and join using OS-specific path separator
+        parts = rel_path.split('/')
+        target_path = os.path.join(*parts)
+        
+        # Create directories if they don't exist
+        parent_dir = os.path.dirname(target_path)
+        if parent_dir:
+            os.makedirs(parent_dir, exist_ok=True)
+            
+        print(f"Extracting: {target_path}")
+        
+        try:
+            mode = file_info.get('mode')
+            is_base64 = file_info.get('is_base64', False)
+            content_str = file_info['content']
+            
+            if is_base64:
+                content_bytes = base64.b64decode(content_str)
+                with open(target_path, 'wb') as f:
+                    f.write(content_bytes)
+            else:
+                with open(target_path, 'w', encoding='utf-8') as f:
+                    f.write(content_str)
+                    
+            # Restore mode if recorded
+            if mode is not None:
+                os.chmod(target_path, mode)
+                
+        except Exception as e:
+            print(f"Error extracting {target_path}: {e}")
+            
+    print("\nProject reconstruction complete!")
+
+if __name__ == '__main__':
+    main()
