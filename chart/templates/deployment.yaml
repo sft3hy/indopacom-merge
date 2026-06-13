@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "indopacom-merge.fullname" . }}
+  labels:
+    {{- include "indopacom-merge.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "indopacom-merge.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "indopacom-merge.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.portWeb }}
+              protocol: TCP
+          env:
+            - name: TEST_LOCAL
+              value: "False"
+            - name: CHATKEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.chatkeySecretName | default "indopacom-merge-secrets" }}
+                  key: chatkey
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: certs
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: certs
+          secret:
+            secretName: {{ .Values.certsSecretName | default "indopacom-merge-certs" }}

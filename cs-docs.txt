@@ -1,0 +1,145 @@
+(U) Get Chat Messages By Room
+(U) Get Chat Messages By Room
+(U) As of release 4.19.0, API users no longer need to establish a session to access private room APIs.
+(U) The session API is deprecated and will be removed in Version 4.21.0 on an estimated release date of August 2025.
+
+path Parameters
+domainId
+required
+any
+The chatsurfer-assigned id of the domain in which this room exists. See Get Chat Domains for domain information.
+
+roomName
+required
+string
+The room name
+
+query Parameters
+api-key
+required
+string
+The API Key value
+
+Responses
+200 Successful
+Response Headers
+X-RateLimit-UserLimit	
+integer <int32>
+The number of requests permitted per minute
+
+X-RateLimit-UserRemaining	
+integer <int32>
+The number of requests remaining in the current time window
+
+X-RateLimit-UserReset	
+integer <int32>
+The number of seconds remaining in the current time window
+
+Response Schema: application/json
+classification
+required
+string
+The classification of this object
+
+messages
+required
+Array of objects (ChatMessageSchema)
+400 Bad Request
+Response Schema: application/json
+classification
+required
+string
+The classification of this object
+
+code
+required
+integer <int32>
+The HTTP status code
+
+fieldErrors	
+Array of objects (FieldErrorSchema)
+The reason(s) the request was rejected
+
+message
+required
+string
+The validation error message
+
+404 Room Does Not Exist
+Response Headers
+X-RateLimit-UserLimit	
+integer <int32>
+The number of requests permitted per minute
+
+X-RateLimit-UserRemaining	
+integer <int32>
+The number of requests remaining in the current time window
+
+X-RateLimit-UserReset	
+integer <int32>
+The number of seconds remaining in the current time window
+
+Response Schema: application/json
+classification
+required
+string
+The classification of this object
+
+code
+required
+integer <int32>
+The HTTP status code
+
+message
+required
+string
+The validation error message
+
+429 Rate Limit Exceeded
+Response Headers
+X-RateLimit-UserLimit	
+integer <int32>
+The number of requests permitted per minute
+
+X-RateLimit-UserRemaining	
+integer <int32>
+The number of requests remaining in the current time window
+
+X-RateLimit-UserReset	
+integer <int32>
+The number of seconds remaining in the current time window
+
+get
+/api/chat/messages/{domainId}/{roomName}
+Response samples
+200400404
+Content type
+application/json
+
+Copy
+Expand allCollapse all
+{
+"classification": "UNCLASSIFIED",
+"messages": [
+{
+"classification": "UNCLASSIFIED",
+"domainId": "xmpp",
+"highlightedKeywords": [
+"ambassador",
+"white house"
+],
+"id": "01ea4b63-a830-13d5-8955-c73b8c7f8de9",
+"isEdited": false,
+"networkId": "low",
+"revisionId": "01ea4b63-a830-13d5-8955-c73b8c7f8de9",
+"revisionTimestamp": "2020-02-09T17:43:18.379Z",
+"roomName": "chatsurfer_status",
+"sender": "Jen",
+"text": "Senators urged White House not to fire ambassador, source confirms",
+"timestamp": "2020-02-09T17:43:18.379Z",
+"tags": [
+"EXERCISE"
+]
+}
+]
+}
